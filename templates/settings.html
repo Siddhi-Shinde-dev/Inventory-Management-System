@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>User Management</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css">
+</head>
+<body class="bg-light p-5">
+<div class="container">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h3 class="font-weight-bold">⚙️ Admin Settings & User Management</h3>
+        <a href="/dashboard" class="btn btn-secondary btn-sm">Back to Dashboard</a>
+    </div>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, msg in messages %}
+          <div class="alert alert-{{ category }}">{{ msg }}</div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    <div class="row">
+        <div class="col-md-4 mb-4">
+            <div class="card p-4 border-0 shadow-sm">
+                <h5 class="font-weight-bold text-primary mb-3">Add Employee/Staff</h5>
+                <form method="POST" action="/settings">
+                    <div class="form-group">
+                        <label>Name</label>
+                        <input type="text" name="name" class="form-control" required placeholder="Full Name">
+                    </div>
+                    <div class="form-group">
+                        <label>Email ID</label>
+                        <input type="email" name="email" class="form-control" required placeholder="email@company.com">
+                    </div>
+                    <div class="form-group">
+                        <label>Password</label>
+                        <input type="password" name="password" class="form-control" required placeholder="••••••••">
+                    </div>
+                    <div class="form-group">
+                        <label>Role Privilege</label>
+                        <select name="role" class="form-control">
+                            <option value="staff">Staff (Limited Access)</option>
+                            <option value="admin">Admin (Full Access)</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-block">Create Account</button>
+                </form>
+            </div>
+        </div>
+
+        <div class="col-md-8">
+            <div class="card p-4 border-0 shadow-sm">
+                <h5 class="font-weight-bold mb-3">Active Corporate Accounts</h5>
+                <table class="table">
+                    <thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Action</th></tr></thead>
+                    <tbody>
+                        {% for u in users %}
+                        <tr>
+                            <td><strong>{{ u.name }}</strong></td>
+                            <td>{{ u.email }}</td>
+                            <td><span class="badge {% if u.role.lower()=='admin' %}badge-dark{% else %}badge-info{% endif %}">{{ u.role.upper() }}</span></td>
+                            <td>
+                                <a href="/user/delete/{{ u.id }}" class="btn btn-sm btn-outline-danger" onclick="return confirm('Account डिलीट करायचे आहे का?')">Remove</a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

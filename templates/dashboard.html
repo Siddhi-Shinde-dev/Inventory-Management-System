@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Inventory Dashboard</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css">
+  
+  <style>
+    body {
+        font-family: 'Inter', sans-serif;
+        background-color: #f8fafc;
+        color: #1e293b;
+        min-height: 100vh;
+        margin: 0;
+    }
+
+    /* 🧭 SIDEBAR STYLE */
+    .sidebar {
+        background-color: #0b224e;
+        color: #ffffff;
+        height: 100vh;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 260px;
+        padding: 30px 20px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        z-index: 1000;
+    }
+
+    .sidebar-brand {
+        font-size: 20px;
+        font-weight: 700;
+        letter-spacing: 0.5px;
+        margin-bottom: 40px;
+        display: flex;
+        align-items: center;
+    }
+
+    .nav-menu {
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+    }
+
+    .nav-item-link {
+        color: #94a3b8;
+        display: flex;
+        align-items: center;
+        padding: 12px 16px;
+        border-radius: 8px;
+        text-decoration: none;
+        font-weight: 500;
+        font-size: 15px;
+        transition: all 0.2s ease;
+    }
+
+    .nav-item-link:hover, .nav-item-link.active {
+        color: #ffffff;
+        background-color: #1e3a8a;
+        text-decoration: none;
+    }
+
+    .nav-item-link i {
+        margin-right: 15px;
+        width: 20px;
+        font-size: 16px;
+    }
+
+    .logout-box {
+        border: 1px solid #1e3a8a;
+        border-radius: 8px;
+    }
+
+    /* 🌌 MAIN CONTENT WRAPPER */
+    .main-content {
+        margin-left: 260px;
+        padding: 40px;
+        background-color: #f8fafc;
+    }
+
+    .dashboard-card {
+        background: #ffffff;
+        border-radius: 12px;
+        border: 1px solid #e2e8f0;
+        padding: 24px;
+        margin-bottom: 24px;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    }
+
+    .profile-avatar {
+        width: 60px;
+        height: 60px;
+        background-color: #4f46e5;
+        color: white;
+        font-size: 24px;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+    }
+
+    /* ⚡ QUICK ACTIONS BUTTONS */
+    .action-btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        color: white;
+        font-weight: 600;
+        padding: 14px;
+        border-radius: 8px;
+        text-decoration: none;
+        transition: transform 0.2s ease, opacity 0.2s ease;
+        border: none;
+        width: 100%;
+    }
+
+    .action-btn:hover {
+        color: white;
+        text-decoration: none;
+        transform: translateY(-2px);
+        opacity: 0.9;
+    }
+
+    .btn-blue { background-color: #1d63ed; }
+    .btn-green { background-color: #22c55e; }
+    .btn-purple { background-color: #a855f7; }
+
+    /* 📊 STATS COUNTERS CARDS */
+    .stat-box {
+        border-radius: 12px;
+        padding: 24px;
+        display: flex;
+        align-items: center;
+        gap: 20px;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        border: 1px solid #e2e8f0;
+        background: #ffffff;
+    }
+
+    .stat-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 20px;
+    }
+
+    .icon-blue { background-color: #eff6ff; color: #1d63ed; }
+    .icon-green { background-color: #f0fdf4; color: #22c55e; }
+    .icon-orange { background-color: #fff7ed; color: #f97316; }
+    .icon-purple { background-color: #faf5ff; color: #a855f7; }
+
+    .stat-number {
+        font-size: 26px;
+        font-weight: 700;
+        color: #0f172a;
+        line-height: 1;
+        margin-bottom: 4px;
+    }
+
+    .stat-label {
+        font-size: 13px;
+        color: #64748b;
+        font-weight: 500;
+    }
+
+    .low-stock-alert-strip {
+        background-color: #fef2f2;
+        border: 1px solid #fca5a5;
+        border-left: 5px solid #ef4444;
+        color: #991b1b;
+        border-radius: 8px;
+        padding: 15px 20px;
+        margin-bottom: 24px;
+    }
+
+    .role-tag {
+        font-size: 12px;
+        font-weight: 700;
+        padding: 6px 16px;
+        border-radius: 6px;
+        background-color: #0b224e;
+        color: white;
+    }
+
+    /* 📊 PROFESSIONAL TABLE STYLE UPDATES */
+    .activity-table th {
+        color: #64748b;
+        font-size: 12px;
+        font-weight: 600;
+        letter-spacing: 0.5px;
+        text-transform: uppercase;
+        border-bottom: 0 !important;
+        padding: 14px 20px !important;
+    }
+    .activity-table td {
+        color: #1e293b;
+        font-size: 14px;
+        padding: 18px 20px;
+        vertical-align: middle;
+    }
+    .badge-soft-danger {
+        background-color: #fef2f2;
+        color: #ef4444;
+        font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+
+<div class="sidebar">
+    <div>
+        <div class="sidebar-brand">
+            <i class="fa-solid fa-cubes-stacked mr-3"></i> Inventory System
+        </div>
+        <div class="nav-menu">
+            <a href="/dashboard" class="nav-item-link active"><i class="fa-solid fa-house"></i> Dashboard</a>
+            <a href="/products" class="nav-item-link"><i class="fa-solid fa-box"></i> Products & Stock</a>
+            <a href="/suppliers" class="nav-item-link"><i class="fa-solid fa-user-group"></i> Supplier Directory</a>
+            <a href="/sales" class="nav-item-link"><i class="fa-solid fa-file-lines"></i> Sales Records</a>
+            <a href="/reports" class="nav-item-link"><i class="fa-solid fa-chart-bar"></i> View Reports</a>
+            
+            {% if user.role.lower() == 'admin' %}
+            <a href="/settings" class="nav-item-link"><i class="fa-solid fa-gear"></i> System Settings</a>
+            {% endif %}
+        </div>
+    </div>
+    <div>
+        <a href="/logout" class="nav-item-link logout-box text-white bg-transparent"><i class="fa-solid fa-right-from-bracket"></i> Logout</a>
+    </div>
+</div>
+
+<div class="main-content">
+    
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h3 class="font-weight-bold mb-0" style="color: #0f172a;">Inventory Dashboard</h3>
+        <div>
+            <a href="/reports/pdf" class="btn btn-outline-danger btn-sm font-weight-bold mr-2 shadow-sm"><i class="fa-solid fa-file-pdf"></i> Download PDF Report</a>
+            <a href="/reports/csv" class="btn btn-outline-success btn-sm font-weight-bold shadow-sm"><i class="fa-solid fa-file-csv"></i> Download CSV</a>
+            <span class="role-tag text-uppercase ml-2">{{ user.role }}</span>
+        </div>
+    </div>
+
+    {% if low_stock %}
+    <div class="low-stock-alert-strip d-flex align-items-center justify-content-between shadow-sm">
+        <div>
+            <i class="fa-solid fa-triangle-exclamation mr-2 text-danger"></i> 
+            <strong>Low Stock Warning:</strong> Some warehouse items have dropped below required levels.
+        </div>
+        <a href="/products" class="btn btn-sm btn-danger px-3 rounded-pill">Resolve Now</a>
+    </div>
+    {% endif %}
+
+    <div class="dashboard-card">
+        <div class="row align-items-center">
+            <div class="col-md-8 d-flex align-items-center">
+                <div class="profile-avatar mr-3">
+                    {{ user.name[0].upper() }}
+                </div>
+                <div>
+                    <h4 class="font-weight-bold mb-1" style="color: #0f172a;">Welcome, {{ user.name }}! 👋</h4>
+                    <p class="text-muted mb-0 small">Email: {{ user.email }} | Authorized Access Level: <strong>{{ user.role | upper }}</strong></p>
+                </div>
+            </div>
+            <div class="col-md-4 text-right d-none d-md-block">
+                <img src="https://cdn-icons-png.flaticon.com/512/942/942748.png" alt="Illustration" style="max-height: 70px; opacity: 0.8;">
+            </div>
+        </div>
+    </div>
+
+    <h5 class="font-weight-bold mb-3" style="color: #334155;">Quick Actions</h5>
+    <div class="row mb-4">
+        <div class="col-md-4 mb-3">
+            <a href="/products" class="action-btn btn-blue shadow-sm">
+                <i class="fa-solid fa-box"></i> View Products & Stock
+            </a>
+        </div>
+        <div class="col-md-4 mb-3">
+            <a href="/suppliers" class="action-btn btn-green shadow-sm">
+                <i class="fa-solid fa-user-group"></i> Supplier Directory
+            </a>
+        </div>
+        <div class="col-md-4 mb-3">
+            <a href="/sales" class="action-btn btn-purple shadow-sm">
+                <i class="fa-solid fa-cart-shopping"></i> Record a Sale
+            </a>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-md-3 mb-3">
+            <div class="stat-box">
+                <div class="stat-icon icon-blue"><i class="fa-solid fa-box"></i></div>
+                <div>
+                    <div class="stat-number">{{ total_products }}</div>
+                    <div class="stat-label">Total Products</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="stat-box">
+                <div class="stat-icon icon-green"><i class="fa-solid fa-arrow-trend-up"></i></div>
+                <div>
+                    <div class="stat-number">{{ total_stock }}</div>
+                    <div class="stat-label">Total Stock (Units)</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="stat-box">
+                <div class="stat-icon icon-orange"><i class="fa-solid fa-users"></i></div>
+                <div>
+                    <div class="stat-number">{{ total_suppliers }}</div>
+                    <div class="stat-label">Total Suppliers</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="stat-box">
+                <div class="stat-icon icon-purple"><i class="fa-solid fa-cart-shopping"></i></div>
+                <div>
+                    <div class="stat-number">{{ total_sales }}</div>
+                    <div class="stat-label">Total Sales</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-md-6 mb-3">
+            <div class="dashboard-card">
+                <h6 class="font-weight-bold mb-3" style="color: #334155;"><i class="fa-solid fa-chart-pie text-primary mr-2"></i> Stock Levels (Top 5 Items)</h6>
+                <canvas id="stockChart" height="150"></canvas>
+            </div>
+        </div>
+        <div class="col-md-6 mb-3">
+            <div class="dashboard-card">
+                <h6 class="font-weight-bold mb-3" style="color: #334155;"><i class="fa-solid fa-chart-line text-success mr-2"></i> Monthly Sales Analytics</h6>
+                <canvas id="salesChart" height="150"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h5 class="font-weight-bold mb-0" style="color: #334155;"><i class="fa-solid fa-clock-rotate-left mr-2 text-secondary"></i> Recent Warehouse Activity</h5>
+    </div>
+    
+    <div class="dashboard-card p-0 overflow-hidden shadow-sm" style="border-radius: 12px; border: 1px solid #e2e8f0; background: #ffffff;">
+        <div class="table-responsive">
+            <table class="table activity-table mb-0 table-hover">
+                <thead style="background-color: #f8fafc; border-bottom: 1px solid #e2e8f0;">
+                    <tr>
+                        <th class="pl-4">Activity Status</th>
+                        <th>Product Details</th>
+                        <th class="pr-4 text-right">Status Alert</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% if low_stock %}
+                        {% for item in low_stock %}
+                        <tr style="transition: background 0.2s; border-bottom: 1px solid #f1f5f9;">
+                            <td class="pl-4 align-middle">
+                                <span class="badge badge-soft-danger px-2 py-1 rounded">
+                                    <i class="fa-solid fa-triangle-exclamation mr-1"></i> Critical Alert
+                                </span>
+                            </td>
+                            <td class="align-middle">
+                                <span class="font-weight-bold" style="color: #1e293b; font-size: 15px;">{{ item.name }}</span>
+                                <div class="text-muted small mt-1">Required Threshold: {{ item.threshold }} Units</div>
+                            </td>
+                            <td class="pr-4 text-right align-middle">
+                                <span class="text-danger font-weight-bold px-3 py-1 d-inline-block rounded-pill" style="background-color: #fef2f2; font-size: 13px;">
+                                    Only {{ item.quantity }} left!
+                                </span>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    {% else %}
+                        <tr>
+                            <td colspan="3" class="text-center py-5 text-muted">
+                                <div class="mb-2">
+                                    <i class="fa-solid fa-circle-check text-success" style="font-size: 28px;"></i>
+                                </div>
+                                <span style="font-size: 14px; font-weight: 500; color: #64748b;">All products have sufficient stock levels. No critical alerts found.</span>
+                            </td>
+                        </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    // 1. Stock Levels Bar Chart
+    const ctxStock = document.getElementById('stockChart').getContext('2d');
+    const stockChart = new Chart(ctxStock, {
+        type: 'bar',
+        data: {
+            labels: {{ chart_labels | tojson }},
+            datasets: [{
+                label: 'Available Quantity',
+                data: {{ chart_data | tojson }},
+                backgroundColor: '#2563eb'
+            }]
+        },
+        options: { 
+            responsive: true,
+            scales: {
+                y: { beginAtZero: true }
+            }
+        }
+    });
+
+    // 2. Monthly Sales Analytics - Professional Line Chart (As per Blueprint Trend Requirement)
+    const ctxSales = document.getElementById('salesChart').getContext('2d');
+    const salesChart = new Chart(ctxSales, {
+        type: 'line', 
+        data: {
+            labels: {{ sales_labels | tojson }},
+            datasets: [{
+                label: 'Sales Revenue (₹)',
+                data: {{ sales_data | tojson }},
+                borderColor: '#10b981',
+                backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                fill: true,
+                tension: 0.3,
+                pointBackgroundColor: '#10b981',
+                pointRadius: 5
+            }]
+        },
+        options: { 
+            responsive: true,
+            scales: {
+                y: { beginAtZero: true }
+            }
+        }
+    });
+</script>
+
+</body>
+</html>
