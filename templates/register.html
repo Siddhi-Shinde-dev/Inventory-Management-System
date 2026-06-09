@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Register - Inventory System</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  
+  <!-- Fonts & FontAwesome Icons -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css">
+  
+  <style>
+    body { 
+        font-family: 'Inter', sans-serif; 
+        background-color: #0d2353;
+        background-image: radial-gradient(circle at 10% 20%, rgb(13, 35, 83) 0%, rgb(18, 53, 122) 90%);
+        height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0; 
+    }
+    
+    .register-container {
+        background: #ffffff;
+        border-radius: 16px;
+        padding: 35px 40px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        width: 100%;
+        max-width: 440px;
+    }
+    
+    .brand-logo {
+        font-size: 24px;
+        font-weight: 700;
+        color: #0d2353;
+        text-align: center;
+        margin-bottom: 20px;
+        letter-spacing: -0.5px;
+    }
+
+    .brand-logo i {
+        color: #1a68ff;
+    }
+    
+    .form-control {
+        border-radius: 8px;
+        border: 1px solid #cbd5e1;
+        padding: 10px 14px;
+        height: auto;
+        font-size: 14px;
+        transition: all 0.2s ease;
+    }
+
+    .form-control:focus {
+        border-color: #1a68ff;
+        box-shadow: 0 0 0 3px rgba(26, 104, 255, 0.1);
+    }
+
+    label {
+        font-size: 14px;
+        font-weight: 500;
+        color: #48556c;
+        margin-bottom: 4px;
+    }
+
+    .btn-register {
+        background-color: #1a68ff;
+        border: none;
+        padding: 12px;
+        border-radius: 8px;
+        font-size: 15px;
+        font-weight: 600;
+        color: white;
+        transition: background 0.2s;
+    }
+
+    .btn-register:hover {
+        background-color: #0052cc;
+        color: white;
+    }
+
+    .login-link {
+        display: block;
+        text-align: center;
+        margin-top: 15px;
+        font-size: 14px;
+        color: #64748b;
+    }
+
+    .login-link a {
+        color: #1a68ff;
+        font-weight: 600;
+        text-decoration: none;
+    }
+    
+    .login-link a:hover {
+        text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+
+<div class="register-container">
+    <!-- 🏢 BRAND LOGO -->
+    <div class="brand-logo">
+        <i class="fa-solid fa-cube mr-2"></i> Inventory System
+    </div>
+    
+    <h5 class="font-weight-bold text-center mb-3" style="color: #1e293b;">Create Account</h5>
+    
+    <!-- ⚠️ ERROR HANDLING -->
+    {% if error %}
+    <div class="alert alert-danger shadow-sm mb-3" role="alert" style="border-radius: 8px; font-size: 13px; padding: 10px 14px;">
+        <i class="fa-solid fa-circle-exclamation mr-2"></i> {{ error }}
+    </div>
+    {% endif %}
+
+    <!-- 📝 REGISTER FORM -->
+    <form action="/register" method="POST">
+        <div class="form-group mb-2">
+            <label for="name">Full Name</label>
+            <input type="text" class="form-control" id="name" placeholder="Enter full name" name="name" required>
+        </div>
+        
+        <div class="form-group mb-2">
+            <label for="email">Email Address</label>
+            <input type="email" class="form-control" id="email" placeholder="name@example.com" name="email" required>
+        </div>
+
+        <div class="form-group mb-2">
+            <label for="pwd">Password</label>
+            <input type="password" class="form-control" id="pwd" placeholder="Create password" name="password" required>
+        </div>
+
+        <div class="form-group mb-4">
+            <label for="role">Select System Role</label>
+            <select class="form-control" id="role" name="role" required>
+                <option value="staff">Staff Member</option>
+                <option value="admin">Administrator</option>
+            </select>
+        </div>
+
+        <button type="submit" class="btn btn-register btn-block shadow-sm">
+            <i class="fa-solid fa-user-plus mr-2"></i> Sign Up
+        </button>
+        
+        <!-- 🔗 LOGIN LINK -->
+        <div class="login-link">
+            Already have an account? <a href="/login">Login here</a>
+        </div>
+    </form>
+</div>
+
+</body>
+</html>

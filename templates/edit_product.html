@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Product - {{ product.name }}</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css">
+</head>
+<body class="bg-light p-5">
+<div class="container bg-white p-4 shadow rounded" style="max-width: 500px;">
+    <h3 class="mb-4">Edit Product</h3>
+    
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+            {{ message }}
+          </div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    <form method="POST">
+        {% if user.role == 'admin' %}
+            <div class="form-group">
+                <label class="font-weight-bold">Product Name</label>
+                <input type="text" name="name" class="form-control" value="{{ product.name }}" required>
+            </div>
+            <div class="form-group">
+                <label class="font-weight-bold">Category</label>
+                <input type="text" name="category" class="form-control" value="{{ product.category }}" required>
+            </div>
+            <div class="form-group">
+                <label class="font-weight-bold">Price (INR)</label>
+                <input type="number" step="0.01" name="price" class="form-control" value="{{ product.price }}" required>
+            </div>
+            
+            <div class="form-group">
+                <label class="font-weight-bold">Supplier</label>
+                <select name="supplier_id" class="form-control" required>
+                    {% for supplier in suppliers %}
+                        <option value="{{ supplier.id }}" {% if supplier.id == product.supplier_id %}selected{% endif %}>
+                            {{ supplier.name }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label class="font-weight-bold">Low-Stock Threshold</label>
+                <input type="number" name="threshold" class="form-control" value="{{ product.threshold }}" required>
+            </div>
+        {% else %}
+            <div class="card bg-light p-3 mb-3">
+                <p class="mb-2"><strong>Name:</strong> {{ product.name }}</p>
+                <p class="mb-2"><strong>Category:</strong> {{ product.category }}</p>
+                <p class="mb-2"><strong>Price:</strong> ₹{{ product.price }}</p>
+                <p class="mb-2"><strong>Supplier:</strong> {{ product.supplier.name }}</p>
+                <p class="mb-0"><strong>Threshold:</strong> {{ product.threshold }}</p>
+            </div>
+        {% endif %}
+
+        <div class="form-group border-top pt-3">
+            <label class="font-weight-bold text-primary">Quantity (Current Stock)</label>
+            <input type="number" name="quantity" class="form-control form-control-lg" value="{{ product.quantity }}" min="0" required>
+        </div>
+
+        <div class="mt-4">
+            <button type="submit" class="btn btn-success px-4">Save Changes</button>
+            <a href="{{ url_for('products') }}" class="btn btn-secondary px-4">Cancel</a>
+        </div>
+    </form>
+</div>
+</body>
+</html>
