@@ -219,13 +219,33 @@
                                         {% endif %}
                                     </td>
                                     <td class="font-weight-bold">{{ sale.product.name }}</td>
-                                    <td><span class="badge badge-light p-2" style="font-size: 13px;">{{ sale.qty_sold }} Items</span></td>
-                                    <td class="text-success font-weight-bold">₹{{ sale.total_price }}</td>
-                                    <td class="text-center pr-4">
-                                        <a href="/sales/delete/{{ sale.id }}" class="btn btn-sm btn-outline-danger font-weight-bold" onclick="return confirm('Are you sure you want to cancel this sale? Sold stock will be restored.')">
-                                            <i class="fa-solid fa-trash-can"></i> Delete
-                                        </a>
-                                    </td>
+
+<td>
+    <span class="badge badge-light p-2" style="font-size: 13px;">
+        {{ sale.qty_sold }} Items
+    </span>
+</td>
+
+<td class="text-success font-weight-bold">
+    ₹{{ sale.total_price }}
+</td>
+
+<td class="text-center pr-4">
+
+    <a href="/invoice/{{ sale.id }}"
+       class="btn btn-sm btn-success mb-1">
+        <i class="fa-solid fa-file-pdf"></i> Invoice
+    </a>
+
+    <br>
+
+    <a href="/sales/delete/{{ sale.id }}"
+       class="btn btn-sm btn-outline-danger font-weight-bold"
+       onclick="return confirm('Are you sure you want to cancel this sale? Sold stock will be restored.')">
+        <i class="fa-solid fa-trash-can"></i> Delete
+    </a>
+
+</td>
                                 </tr>
                                 {% endfor %}
                             {% else %}

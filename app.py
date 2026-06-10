@@ -48,8 +48,7 @@ app.config['MAIL_USERNAME'] = os.environ.get("MAIL_USERNAME")
 app.config['MAIL_PASSWORD'] = os.environ.get("MAIL_PASSWORD")
 mail = Mail(app)
 
-
-# --- ⏰ REAL-TIME TIMEZONE HELPER (IST) ---
+# --- REAL-TIME TIMEZONE HELPER (IST) ---
 def get_ist_time():
     """Generates accurate Indian Standard Time (IST) regardless of host server location"""
     utc_now = datetime.now(timezone.utc)
@@ -652,6 +651,58 @@ def reports_pdf():
     return Response(buffer.getvalue(), mimetype="application/pdf",
                     headers={"Content-Disposition": "attachment; filename=Inventory_Valuation_Report.pdf"})
 
+
+@app.route("/invoice/<int:sale_id>")
+@login_required
+def generate_invoice(sale_id):
+    sale = db.session.get(Sales, sale_id)
+
+    if not sale:
+        return "Sale not found", 404
+
+    product = db.session.get(Product, sale.product_id)
+
+    buffer = io.BytesIO()
+    doc = SimpleDocTemplate(buffer, pagesize=letter)
+    elements = []
+    styles = getSampleStyleSheet()
+
+    elements.append(Paragraph("Inventory Management System", styles['Title']))
+    elements.append(Paragraph("Sales Invoice", styles['Heading2']))
+    elements.append(Paragraph("Pune, Maharashtra", styles['Normal']))
+    elements.append(Paragraph("Email: support@gmail.com", styles['Normal']))
+    elements.append(Spacer(1, 20))
+
+    data = [
+        ["Invoice No", f"INV-{sale.id}"],
+        ["Date", sale.sale_date.strftime("%d-%m-%Y")],
+        ["Product Name", product.name],
+        ["Category", product.category],
+        ["Quantity Sold", str(sale.qty_sold)],
+        ["Unit Price", f"INR {product.price:.2f}"],
+        ["Total Amount", f"INR {sale.total_price:.2f}"]
+    ]
+
+    table = Table(data, colWidths=[150, 250])
+
+    table.setStyle(TableStyle([
+        ('GRID', (0, 0), (-1, -1), 1, colors.black),
+        ('BACKGROUND', (0, 0), (-1, 0), colors.lightgrey)
+    ]))
+
+    elements.append(table)
+
+    doc.build(elements)
+    buffer.seek(0)
+
+    return Response(
+        buffer.getvalue(),
+        mimetype="application/pdf",
+        headers={
+            "Content-Disposition":
+            f"attachment; filename=Invoice_{sale.id}.pdf"
+        }
+    )
 
 # --- ⚙️ ADMIN SETTINGS ROUTES ---
 
