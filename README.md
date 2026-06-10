@@ -12,6 +12,7 @@ Real-time Low-Stock Alert System: Dynamic visual badges and notifications appear
 Interactive Data Visualization: A dynamic dashboard powered by Chart.js displaying current stock levels and seasonal sales trends at a glance.
 Business Reporting: Built-in capability to aggregate data and export complete inventory reports into PDF (via ReportLab) or CSV formats.
 Advanced Filters & Search: Fast product lookup utilizing search strings and category filters.
+
 Tech Stack & Architecture
 Backend: Python, Flask REST API (Object-Oriented Programming, Custom Decorators, Exception Handling)
 Database: PostgreSQL (Hosted on Supabase), SQLAlchemy ORM (Relational tables: users, products, suppliers, sales, categories)
