@@ -11,24 +11,19 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_mail import Mail, Message
 from sqlalchemy import func
 
-# Load environment variables from .env file
 from dotenv import load_dotenv
 
-# ReportLab Libraries for PDF generation
 from reportlab.lib.pagesizes import letter
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
 from reportlab.lib.styles import getSampleStyleSheet
 from reportlab.lib import colors
 
-# Load .env file configurations
 load_dotenv()
 
 app = Flask(__name__)
 
-# Secret key read directly from environment variables
 app.secret_key = os.environ.get("SECRET_KEY", "default-fallback-key")
 
-# --- 🗄️ Database Configuration (Supabase PostgreSQL) ---
 raw_password = os.environ.get("SUPABASE_PASSWORD")
 safe_password = urllib.parse.quote_plus(raw_password) if raw_password else ""
 
@@ -36,11 +31,9 @@ app.config["SQLALCHEMY_DATABASE_URI"] = f"postgresql://postgres:{safe_password}@
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 db = SQLAlchemy(app)
 
-# 🔐 JWT Configuration
 app.config["JWT_SECRET_KEY"] = os.environ.get("JWT_SECRET", "fallback_jwt_secret")
 app.config["JWT_EXPIRY_HOURS"] = 24
 
-# 📧 Flask-Mail Configuration for low stock alerts
 app.config['MAIL_SERVER'] = 'smtp.gmail.com'
 app.config['MAIL_PORT'] = 587
 app.config['MAIL_USE_TLS'] = True
@@ -48,21 +41,21 @@ app.config['MAIL_USERNAME'] = os.environ.get("MAIL_USERNAME")
 app.config['MAIL_PASSWORD'] = os.environ.get("MAIL_PASSWORD")
 mail = Mail(app)
 
-# --- REAL-TIME TIMEZONE HELPER (IST) ---
+
 def get_ist_time():
     """Generates accurate Indian Standard Time (IST) regardless of host server location"""
     utc_now = datetime.now(timezone.utc)
     return utc_now + timedelta(hours=5, minutes=30)
 
 
-# --- 🗄️ DATABASE MODELS ---
+# --- DATABASE MODELS ---
 
 class User(db.Model):
     __tablename__ = "users"
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)
     email = db.Column(db.String(100), unique=True, nullable=False)
-    password = db.Column(db.String(255), nullable=False)  # Increased to 255 for safe bcrypt storage
+    password = db.Column(db.String(255), nullable=False)
     role = db.Column(db.String(20), nullable=False, default="staff")
 
     def __init__(self, email, password, name, role="staff"):
@@ -108,7 +101,7 @@ class Sales(db.Model):
     sale_date = db.Column(db.DateTime, nullable=False, default=get_ist_time)
 
 
-# --- 🔐 JWT HELPER FUNCTIONS ---
+# --- JWT HELPER FUNCTIONS ---
 
 def generate_jwt_token(user):
     now_utc = datetime.now(timezone.utc)
@@ -150,14 +143,12 @@ def login_required(f):
         if not token:
             flash("Please login to continue.", "warning")
             return redirect("/login")
-        
         payload, error = decode_jwt_token(token)
         if error:
             flash(error, "danger")
             response = make_response(redirect("/login"))
             response.delete_cookie("jwt_token")
             return response
-        
         request.current_user = payload
         return f(*args, **kwargs)
     return decorated_function
@@ -170,17 +161,14 @@ def admin_required(f):
         if not token:
             flash("Please login to continue.", "warning")
             return redirect("/login")
-        
         payload, error = decode_jwt_token(token)
         if error:
             flash(error, "danger")
             response = make_response(redirect("/login"))
             response.delete_cookie("jwt_token")
             return response
-        
         if payload.get("role") != "admin":
             return "<h3>Error 403: Access Denied! Only System Admins can access this page.</h3>", 403
-        
         request.current_user = payload
         return f(*args, **kwargs)
     return decorated_function
@@ -193,15 +181,18 @@ def get_current_user_from_db():
     return db.session.get(User, payload.get("user_id"))
 
 
-# --- 🛠️ HELPER FUNCTIONS ---
+# --- HELPER FUNCTIONS ---
 
 def trigger_low_stock_email(low_products):
     if not app.config['MAIL_PASSWORD'] or not low_products:
-        return  
+        return
     try:
-        msg = Message("🚨 ALERT: Low-Stock Warehouse Notification",
-                      sender=app.config['MAIL_USERNAME'],
-                      recipients=["manager@inventory.com"]
+        # FIX: hardcoded fake email काढला, env variable वापरतो
+        admin_email = app.config['MAIL_USERNAME']
+        msg = Message(
+            "🚨 ALERT: Low-Stock Warehouse Notification",
+            sender=admin_email,
+            recipients=[admin_email]
         )
         body = "Hello System Manager,\n\nThe following items have dropped below their minimum threshold levels:\n\n"
         for item in low_products:
@@ -212,7 +203,8 @@ def trigger_low_stock_email(low_products):
     except Exception as e:
         print(f"Email failed to send: {e}")
 
-# --- 🧭 APPLICATION ROUTES ---
+
+# --- APPLICATION ROUTES ---
 
 @app.route("/")
 def index():
@@ -220,7 +212,13 @@ def index():
 
 
 @app.route("/register", methods=["GET", "POST"])
+@login_required
 def register():
+    current_user_data = get_current_user_from_db()
+    if current_user_data.role.lower() != 'admin':
+        flash("You do not have permission to create a new user!", "danger")
+        return redirect(url_for('dashboard'))
+
     if request.method == "POST":
         name = request.form["name"]
         email = request.form["email"]
@@ -230,10 +228,10 @@ def register():
         try:
             db.session.add(new_user)
             db.session.commit()
-            flash("Registration successful! Please login.", "success")
-            return redirect("/login")
+            flash(f"User {name} created successfully!", "success")
+            return redirect(url_for('dashboard'))
         except Exception:
-            db.session.rollback()  
+            db.session.rollback()
             return render_template("register.html", error="Email already exists!")
     return render_template("register.html")
 
@@ -246,18 +244,17 @@ def login():
         user = User.query.filter_by(email=email).first()
 
         if user and user.check_password(password):
+            # FIX: flask_login काढला, फक्त JWT वापरतो
             token = generate_jwt_token(user)
             response = make_response(redirect("/dashboard"))
-            
-            # Setting secure=True automatically switches based on production (HTTPS)
             is_prod = os.environ.get("RENDER") is not None
             response.set_cookie(
                 "jwt_token",
                 token,
-                httponly=True,       
-                secure=is_prod,        
-                samesite="Lax",      
-                max_age=60 * 60 * 24  
+                httponly=True,
+                secure=is_prod,
+                samesite="Lax",
+                max_age=60 * 60 * 24
             )
             return response
         else:
@@ -270,24 +267,27 @@ def login():
 def dashboard():
     user = get_current_user_from_db()
 
-    # REMOVED: Email notification block from here to prevent refresh-spamming.
     low_stock_products = Product.query.filter(Product.quantity <= Product.threshold).all()
 
     total_products_count = Product.query.count()
     total_stock_units = db.session.query(func.sum(Product.quantity)).scalar() or 0
     total_suppliers_count = Supplier.query.count()
-    
-    sales_data_db = db.session.query(
-        func.trim(func.to_char(Sales.sale_date, 'Mon')).label('month'),
-        func.sum(Sales.total_price).label('total')
-    ).group_by(func.trim(func.to_char(Sales.sale_date, 'Mon'))).all()
 
-    sales_labels = [str(s.month) for s in sales_data_db] if sales_data_db else ['No Data']
-    sales_data = [float(s.total) for s in sales_data_db] if sales_data_db else [0]
+    monthly_sales = db.session.query(
+        func.to_char(Sales.sale_date, 'YYYY-MM').label('month'),
+        func.sum(Sales.total_price).label('total_revenue')
+    ).group_by('month').order_by('month').all()
 
-    top_products = Product.query.order_by(Product.quantity.asc()).limit(5).all()
-    chart_labels = [p.name for p in top_products] if top_products else ["No Data"]
-    chart_data = [p.quantity for p in top_products] if top_products else [0]
+    sales_labels = [s.month for s in monthly_sales] if monthly_sales else ['No Data']
+    sales_data = [float(s.total_revenue) for s in monthly_sales] if monthly_sales else [0]
+
+    top_products_data = db.session.query(
+        Product.name,
+        func.sum(Sales.qty_sold).label('total_sold')
+    ).join(Sales).group_by(Product.name).order_by(func.sum(Sales.qty_sold).desc()).limit(5).all()
+
+    chart_labels = [p[0] for p in top_products_data] if top_products_data else ["No Data"]
+    chart_data = [int(p[1]) for p in top_products_data] if top_products_data else [0]
 
     return render_template(
         "dashboard.html",
@@ -313,7 +313,7 @@ def products():
         if user.role != 'admin':
             flash("Only admins can add new products!", "danger")
             return redirect("/products")
-            
+
         name = request.form["name"]
         category = request.form["category"]
         quantity = int(request.form["quantity"])
@@ -330,12 +330,14 @@ def products():
             db.session.commit()
             flash("Product added successfully!", "success")
         except Exception as e:
-            db.session.rollback()  
+            db.session.rollback()
             flash(f"Error adding product: {str(e)}", "danger")
         return redirect("/products")
 
     search_query = request.args.get("search", "").strip()
     category_filter = request.args.get("category", "").strip()
+    page = request.args.get("page", 1, type=int)
+    per_page = 10
 
     query = Product.query
     if search_query:
@@ -343,7 +345,8 @@ def products():
     if category_filter:
         query = query.filter(Product.category == category_filter)
 
-    all_products = query.all()
+    pagination = query.paginate(page=page, per_page=per_page, error_out=False)
+    all_products = pagination.items
     all_suppliers = Supplier.query.all()
     categories = [r.category for r in db.session.query(Product.category).distinct()]
 
@@ -354,7 +357,8 @@ def products():
         user=user,
         categories=categories,
         search=search_query,
-        selected_cat=category_filter
+        selected_cat=category_filter,
+        pagination=pagination
     )
 
 
@@ -363,12 +367,12 @@ def products():
 def edit_product(id):
     current_user_data = getattr(request, 'current_user', None)
     user_role = current_user_data.get("role") if current_user_data else "staff"
-    
+
     product = db.session.get(Product, id)
     if not product:
         flash('Product not found!', 'danger')
         return redirect(url_for('products'))
-        
+
     suppliers = Supplier.query.all()
 
     if request.method == 'POST':
@@ -381,7 +385,6 @@ def edit_product(id):
                 product.supplier_id = int(request.form['supplier_id'])
                 product.quantity = int(request.form['quantity'])
             else:
-                # Staff can update quantity safely
                 product.quantity = int(request.form['quantity'])
 
             db.session.commit()
@@ -398,7 +401,7 @@ def edit_product(id):
 
 
 @app.route('/products/delete/<int:id>')
-@admin_required  
+@admin_required
 def delete_product(id):
     product = db.session.get(Product, id)
     if product:
@@ -407,14 +410,14 @@ def delete_product(id):
             db.session.commit()
             flash('Product deleted successfully!', 'danger')
         except Exception as e:
-            db.session.rollback()  
+            db.session.rollback()
             flash(f'Error deleting product: {str(e)}', 'danger')
     else:
         flash('Product not found!', 'danger')
     return redirect(url_for('products'))
 
 
-# --- 🏢 SUPPLIER DIRECTORY ROUTES ---
+# --- SUPPLIER ROUTES ---
 
 @app.route("/suppliers", methods=["GET", "POST"])
 @login_required
@@ -433,7 +436,7 @@ def suppliers():
             db.session.commit()
             flash("New supplier added successfully!", "success")
         except Exception as e:
-            db.session.rollback()  
+            db.session.rollback()
             flash(f"Error adding supplier: {str(e)}", "danger")
         return redirect("/suppliers")
 
@@ -464,7 +467,7 @@ def edit_supplier(id):
             flash('Supplier updated successfully!', 'success')
             return redirect(url_for('suppliers'))
         except Exception as e:
-            db.session.rollback()  
+            db.session.rollback()
             flash(f'Error updating supplier: {str(e)}', 'danger')
 
     user = get_current_user_from_db()
@@ -474,11 +477,11 @@ def edit_supplier(id):
 @app.route('/suppliers/delete/<int:id>')
 @admin_required
 def delete_supplier(id):
-    supplier = db.session.get(Supplier, id) 
+    supplier = db.session.get(Supplier, id)
     if not supplier:
         flash('Supplier not found!', 'danger')
         return redirect(url_for('suppliers'))
-        
+
     try:
         db.session.delete(supplier)
         db.session.commit()
@@ -486,11 +489,11 @@ def delete_supplier(id):
     except Exception as e:
         db.session.rollback()
         flash(f'Error deleting supplier: {str(e)}', 'danger')
-        
+
     return redirect(url_for('suppliers'))
 
 
-# --- 📊 SALES RECORDS ROUTES ---
+# --- SALES ROUTES ---
 
 @app.route("/sales", methods=["GET", "POST"])
 @login_required
@@ -499,11 +502,9 @@ def sales():
 
     if request.method == "POST":
         try:
-            # १. इनपुट डेटा सुरक्षितपणे घेणे
             product_id = int(request.form.get("product_id"))
             qty_sold = int(request.form.get("qty_sold", 0))
 
-            # २. व्हॅलिडेशन: क्वांटिटी पॉझिटिव्ह असावी
             if qty_sold <= 0:
                 error_msg = "Quantity must be at least 1."
             else:
@@ -515,21 +516,18 @@ def sales():
                     else:
                         product.quantity -= qty_sold
                         total_price = product.price * qty_sold
-                        
                         new_sale = Sales(product_id=product_id, qty_sold=qty_sold, total_price=total_price)
                         db.session.add(new_sale)
-                        
                         db.session.commit()
-                        
-                     
+
                         if product.quantity <= product.threshold:
                             trigger_low_stock_email([product])
-                            
+
                         flash("Sale recorded successfully!", "success")
                         return redirect("/sales")
                 else:
                     error_msg = "Product not found!"
-        
+
         except ValueError:
             error_msg = "Invalid input! Please enter numbers for quantity."
         except Exception as e:
@@ -562,12 +560,12 @@ def delete_sale(id):
         db.session.commit()
         flash('Sale record deleted and stock restored successfully!', 'warning')
     except Exception as e:
-        db.session.rollback()  
+        db.session.rollback()
         flash(f'Error deleting sale log: {str(e)}', 'danger')
     return redirect(url_for('sales'))
 
 
-# --- 📝 EXPORTABLE REPORTS ROUTES ---
+# --- REPORTS ROUTES ---
 
 @app.route("/reports")
 @login_required
@@ -578,17 +576,21 @@ def reports():
     total_valuation = sum([p.quantity * p.price for p in all_products])
     total_products_count = len(all_products)
 
-    sales_data_db = db.session.query(
-        func.trim(func.to_char(Sales.sale_date, 'Mon')).label('month'),
+    monthly_sales = db.session.query(
+        func.to_char(Sales.sale_date, 'YYYY-MM').label('month'),
         func.sum(Sales.total_price).label('total')
-    ).group_by(func.trim(func.to_char(Sales.sale_date, 'Mon'))).all()
+    ).group_by('month').order_by('month').all()
 
-    sales_labels = [str(s.month) for s in sales_data_db] if sales_data_db else ['No Data']
-    sales_data = [float(s.total) for s in sales_data_db] if sales_data_db else [0]
+    sales_labels = [s.month for s in monthly_sales] if monthly_sales else ['No Data']
+    sales_data = [float(s.total) for s in monthly_sales] if monthly_sales else [0]
 
-    top_products = Product.query.order_by(Product.quantity.asc()).limit(5).all()
-    chart_labels = [p.name for p in top_products] if top_products else ["No Data"]
-    chart_data = [p.quantity for p in top_products] if top_products else [0]
+    top_products_data = db.session.query(
+        Product.name,
+        func.sum(Sales.qty_sold).label('total_sold')
+    ).join(Sales).group_by(Product.name).order_by(func.sum(Sales.qty_sold).desc()).limit(5).all()
+
+    chart_labels = [p[0] for p in top_products_data] if top_products_data else ["No Data"]
+    chart_data = [int(p[1]) for p in top_products_data] if top_products_data else [0]
 
     return render_template(
         "reports.html",
@@ -665,7 +667,6 @@ def reports_pdf():
 @login_required
 def generate_invoice(sale_id):
     sale = db.session.get(Sales, sale_id)
-
     if not sale:
         return "Sale not found", 404
 
@@ -693,27 +694,23 @@ def generate_invoice(sale_id):
     ]
 
     table = Table(data, colWidths=[150, 250])
-
     table.setStyle(TableStyle([
         ('GRID', (0, 0), (-1, -1), 1, colors.black),
         ('BACKGROUND', (0, 0), (-1, 0), colors.lightgrey)
     ]))
 
     elements.append(table)
-
     doc.build(elements)
     buffer.seek(0)
 
     return Response(
         buffer.getvalue(),
         mimetype="application/pdf",
-        headers={
-            "Content-Disposition":
-            f"attachment; filename=Invoice_{sale.id}.pdf"
-        }
+        headers={"Content-Disposition": f"attachment; filename=Invoice_{sale.id}.pdf"}
     )
 
-# --- ⚙️ ADMIN SETTINGS ROUTES ---
+
+# --- SETTINGS ROUTES ---
 
 @app.route("/settings", methods=["GET", "POST"])
 @admin_required
@@ -736,7 +733,7 @@ def settings():
                 db.session.commit()
                 flash("New user account successfully registered!", "success")
             except Exception as e:
-                db.session.rollback()  
+                db.session.rollback()
                 flash(f"Error registering user: {str(e)}", "danger")
         return redirect("/settings")
 
@@ -749,7 +746,7 @@ def settings():
 def delete_user(user_id):
     current_user_obj = get_current_user_from_db()
     user_to_delete = db.session.get(User, user_id)
-    
+
     if user_to_delete:
         if user_to_delete.email != current_user_obj.email:
             try:
@@ -763,7 +760,7 @@ def delete_user(user_id):
             flash("Cannot delete your own active session account!", "danger")
     else:
         flash("User not found!", "danger")
-        
+
     return redirect("/settings")
 
 
