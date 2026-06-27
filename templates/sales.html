@@ -4,112 +4,61 @@
   <title>Sales Records</title>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  
+
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css">
-  
+
   <style>
-    body { 
-        font-family: 'Inter', sans-serif; 
-        background-color: #f8fafc; 
-        color: #1e293b; 
-        margin: 0; 
+    body {
+        font-family: 'Inter', sans-serif;
+        background-color: #f8fafc;
+        color: #1e293b;
+        margin: 0;
     }
     
-    /* 🧭 SIDEBAR STYLE */
-    .sidebar { 
-        background-color: #0d2353; 
-        color: #ffffff; 
-        height: 100vh; 
-        position: fixed; 
-        top: 0; 
-        left: 0; 
-        width: 260px; 
-        padding: 35px 20px; 
-        display: flex; 
-        flex-direction: column; 
-        justify-content: space-between; 
-        z-index: 1000; 
-    }
+
     
-    .sidebar-brand { 
-        font-size: 21px; 
-        font-weight: 700; 
-        margin-bottom: 45px; 
-        display: flex; 
-        align-items: center; 
-        letter-spacing: -0.5px;
-    }
+
     
-    .nav-menu { 
-        display: flex; 
-        flex-direction: column; 
-        gap: 8px; 
-    }
+
     
-    .nav-item-link { 
-        color: #9ab4db; 
-        display: flex; 
-        align-items: center; 
-        padding: 12px 16px; 
-        border-radius: 8px; 
-        text-decoration: none; 
-        font-weight: 500; 
-        font-size: 15px; 
-        transition: all 0.2s ease;
-    }
+
     
-    .nav-item-link:hover { 
-        color: #ffffff; 
-        text-decoration: none; 
-    }
+
     
-    .nav-item-link.active {
-        color: #ffffff;
-        background-color: #1a3675;
-        font-weight: 600;
-    }
+
     
-    .nav-item-link i { 
-        margin-right: 15px; 
-        width: 20px; 
-        font-size: 17px; 
-    }
+
     
-    .logout-box {
-        border: 1px solid #1e3a8a;
-        border-radius: 8px;
-        padding: 12px 16px;
-    }
-    
+
     /* 🌌 MAIN CONTENT WRAPPER */
-    .main-content { 
-        margin-left: 260px; 
-        padding: 40px 50px; 
+    .main-content {
+        margin-left: 260px;
+        padding: 40px 50px;
     }
-    
-    .dashboard-card { 
-        background: #ffffff; 
-        border-radius: 12px; 
-        border: 1px solid #eef2f6; 
-        padding: 26px; 
+
+    .dashboard-card {
+        background: #ffffff;
+        border-radius: 12px;
+        border: 1px solid #eef2f6;
+        padding: 26px;
         margin-bottom: 24px;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.01); 
+        box-shadow: 0 2px 4px rgba(0,0,0,0.01);
     }
-    
-    .table th { 
-        background-color: #ffffff; 
-        color: #48556c; 
-        font-size: 14px; 
-        font-weight: 600; 
-        border-bottom: 2px solid #f1f5f9; 
+
+    .table th {
+        background-color: #ffffff;
+        color: #48556c;
+        font-size: 14px;
+        font-weight: 600;
+        border-bottom: 2px solid #f1f5f9;
     }
-    
-    .table td { 
-        color: #2d394c; 
-        font-size: 14px; 
-        vertical-align: middle; 
+
+    .table td {
+        color: #2d394c;
+        font-size: 14px;
+        vertical-align: middle;
     }
 
     .form-control {
@@ -126,19 +75,77 @@
         color: #48556c;
         margin-bottom: 6px;
     }
+      /* 🧭 SIDEBAR */
+    .sidebar {
+        background-color: #0b224e;
+        color: #ffffff;
+        height: 100vh;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 260px;
+        padding: 30px 20px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        z-index: 1000;
+    }
+    .sidebar-brand {
+        font-size: 20px;
+        font-weight: 700;
+        letter-spacing: 0.5px;
+        margin-bottom: 40px;
+        display: flex;
+        align-items: center;
+    }
+    .nav-menu {
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+    }
+    .nav-item-link {
+        color: #94a3b8;
+        display: flex;
+        align-items: center;
+        padding: 12px 16px;
+        border-radius: 8px;
+        text-decoration: none;
+        font-weight: 500;
+        font-size: 15px;
+        transition: all 0.2s ease;
+    }
+    .nav-item-link:hover, .nav-item-link.active {
+        color: #ffffff;
+        background-color: #1e3a8a;
+        text-decoration: none;
+    }
+    .nav-item-link i {
+        margin-right: 15px;
+        width: 20px;
+        font-size: 16px;
+    }
+    .logout-box {
+        border: 1px solid #1e3a8a;
+        border-radius: 8px;
+    }
   </style>
 </head>
 <body>
 
 <div class="sidebar">
     <div>
-        <div class="sidebar-brand"><i class="fa-solid fa-cube mr-3"></i> Inventory System</div>
+        <div class="sidebar-brand">
+            <i class="fa-solid fa-cubes-stacked mr-3"></i> Inventory System
+        </div>
         <div class="nav-menu">
             <a href="/dashboard" class="nav-item-link"><i class="fa-solid fa-house"></i> Dashboard</a>
-            <a href="/products" class="nav-item-link"><i class="fa-solid fa-box"></i> Products & Stock</a>
+            <a href="/products" class="nav-item-link"><i class="fa-solid fa-box"></i> Products &amp; Stock</a>
             <a href="/suppliers" class="nav-item-link"><i class="fa-solid fa-user-group"></i> Supplier Directory</a>
             <a href="/sales" class="nav-item-link active"><i class="fa-solid fa-file-lines"></i> Sales Records</a>
-            <a href="/reports" class="nav-item-link"><i class="fa-solid fa-chart-simple"></i> Reports</a>
+            <a href="/reports" class="nav-item-link"><i class="fa-solid fa-chart-bar"></i> View Reports</a>
+            {% if user.role.lower() == 'admin' %}
+            <a href="/settings" class="nav-item-link"><i class="fa-solid fa-gear"></i> System Settings</a>
+            {% endif %}
         </div>
     </div>
     <div>
@@ -166,7 +173,7 @@
     <div class="row">
         <div class="col-lg-4 mb-4">
             <h5 class="font-weight-bold mb-3" style="color: #0c1e43; font-size: 16px;">Record a Sale</h5>
-            
+
             {% if error %}
             <div class="alert alert-danger shadow-sm mb-3" role="alert" style="border-radius: 8px; font-size: 14px;">
                 <i class="fa-solid fa-circle-exclamation mr-2"></i> {{ error }}
@@ -174,10 +181,10 @@
             {% endif %}
 
             <div class="dashboard-card">
-                <form action="/sales" method="POST">
+                <form action="/sales" method="POST" id="sales_form">
                     <div class="form-group mb-3">
                         <label>Select Product</label>
-                        <select name="product_id" class="form-control" required>
+                        <select name="product_id" id="product_select" class="form-control" required autofocus>
                             {% for product in products %}
                             <option value="{{ product.id }}">{{ product.name }} (Stock: {{ product.quantity }})</option>
                             {% endfor %}
@@ -185,7 +192,7 @@
                     </div>
                     <div class="form-group mb-4">
                         <label>Quantity to Sell</label>
-                        <input type="number" name="qty_sold" class="form-control" required min="1" placeholder="e.g. 5">
+                        <input type="number" name="qty_sold" id="qty_input" class="form-control" required min="1" value="1" placeholder="e.g. 5">
                     </div>
                     <button type="submit" class="btn btn-primary btn-block font-weight-bold" style="background-color: #1a68ff; border: none; padding: 12px; border-radius: 6px; font-size: 15px;">
                         <i class="fa-solid fa-cart-plus mr-2"></i>Submit Sale
@@ -193,7 +200,7 @@
                 </form>
             </div>
         </div>
-        
+
         <div class="col-lg-8 mb-4">
             <h5 class="font-weight-bold mb-3" style="color: #0c1e43; font-size: 16px;">Sales History</h5>
             <div class="dashboard-card p-0 overflow-hidden">
@@ -205,7 +212,8 @@
                                 <th>Product Name</th>
                                 <th>Quantity Sold</th>
                                 <th>Total Revenue</th>
-                                <th class="text-center pr-4">Action</th> </tr>
+                                <th class="text-center pr-4">Action</th>
+                            </tr>
                         </thead>
                         <tbody>
                             {% if sales %}
@@ -220,32 +228,30 @@
                                     </td>
                                     <td class="font-weight-bold">{{ sale.product.name }}</td>
 
-<td>
-    <span class="badge badge-light p-2" style="font-size: 13px;">
-        {{ sale.qty_sold }} Items
-    </span>
-</td>
+                                    <td>
+                                        <span class="badge badge-light p-2" style="font-size: 13px;">
+                                            {{ sale.qty_sold }} Items
+                                        </span>
+                                    </td>
 
-<td class="text-success font-weight-bold">
-    ₹{{ sale.total_price }}
-</td>
+                                    <td class="text-success font-weight-bold">
+                                        ₹{{ sale.total_price }}
+                                    </td>
 
-<td class="text-center pr-4">
+                                    <td class="text-center pr-4">
+                                        <a href="/invoice/{{ sale.id }}"
+                                           class="btn btn-sm btn-success mb-1">
+                                            <i class="fa-solid fa-file-pdf"></i> Invoice
+                                        </a>
 
-    <a href="/invoice/{{ sale.id }}"
-       class="btn btn-sm btn-success mb-1">
-        <i class="fa-solid fa-file-pdf"></i> Invoice
-    </a>
+                                        <br>
 
-    <br>
-
-    <a href="/sales/delete/{{ sale.id }}"
-       class="btn btn-sm btn-outline-danger font-weight-bold"
-       onclick="return confirm('Are you sure you want to cancel this sale? Sold stock will be restored.')">
-        <i class="fa-solid fa-trash-can"></i> Delete
-    </a>
-
-</td>
+                                        <a href="/sales/delete/{{ sale.id }}"
+                                           class="btn btn-sm btn-outline-danger font-weight-bold"
+                                           onclick="return confirm('Are you sure you want to cancel this sale? Sold stock will be restored.')">
+                                            <i class="fa-solid fa-trash-can"></i> Delete
+                                        </a>
+                                    </td>
                                 </tr>
                                 {% endfor %}
                             {% else %}
@@ -263,5 +269,13 @@
 
 <script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    document.getElementById('qty_input').addEventListener('keypress', function (e) {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            document.getElementById('sales_form').submit();
+        }
+    });
+</script>
 </body>
 </html>

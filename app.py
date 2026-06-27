@@ -201,7 +201,8 @@ def trigger_low_stock_email(low_products):
     try:
         msg = Message("🚨 ALERT: Low-Stock Warehouse Notification",
                       sender=app.config['MAIL_USERNAME'],
-                      recipients=["manager@inventory.com"])
+                      recipients=["manager@inventory.com"]
+        )
         body = "Hello System Manager,\n\nThe following items have dropped below their minimum threshold levels:\n\n"
         for item in low_products:
             body += f"- {item.name}: Only {item.quantity} left (Required Threshold: {item.threshold})\n"
@@ -210,7 +211,6 @@ def trigger_low_stock_email(low_products):
         mail.send(msg)
     except Exception as e:
         print(f"Email failed to send: {e}")
-
 
 # --- 🧭 APPLICATION ROUTES ---
 
@@ -296,7 +296,7 @@ def dashboard():
         total_products=total_products_count,
         total_stock=total_stock_units,
         total_suppliers=total_suppliers_count,
-        total_sales=len(sales_data_db),
+        total_sales=Sales.query.count(),
         chart_labels=chart_labels,
         chart_data=chart_data,
         sales_labels=sales_labels,
@@ -498,34 +498,43 @@ def sales():
     error_msg = None
 
     if request.method == "POST":
-        product_id = int(request.form["product_id"])
-        qty_sold = int(request.form["qty_sold"])
-        product = db.session.get(Product, product_id)
+        try:
+            # १. इनपुट डेटा सुरक्षितपणे घेणे
+            product_id = int(request.form.get("product_id"))
+            qty_sold = int(request.form.get("qty_sold", 0))
 
-        if product:
-            if product.quantity < qty_sold:
-                error_msg = f"Insufficient stock! Only {product.quantity} items left."
+            # २. व्हॅलिडेशन: क्वांटिटी पॉझिटिव्ह असावी
+            if qty_sold <= 0:
+                error_msg = "Quantity must be at least 1."
             else:
-                product.quantity -= qty_sold
-                total_price = product.price * qty_sold
-                
-                new_sale = Sales(product_id=product_id, qty_sold=qty_sold, total_price=total_price)
-                db.session.add(new_sale)
-                
-                try:
-                    db.session.commit()
-                    
-                    # FIXED: Real-time transactional evaluation for non-spam email triggers
-                    if product.quantity <= product.threshold:
-                        trigger_low_stock_email([product])
+                product = db.session.get(Product, product_id)
+
+                if product:
+                    if product.quantity < qty_sold:
+                        error_msg = f"Insufficient stock! Only {product.quantity} items left."
+                    else:
+                        product.quantity -= qty_sold
+                        total_price = product.price * qty_sold
                         
-                    flash("Sale recorded successfully!", "success")
-                    return redirect("/sales")
-                except Exception as e:
-                    db.session.rollback()
-                    error_msg = "Database error. Please try again."
-        else:
-            error_msg = "Product not found!"
+                        new_sale = Sales(product_id=product_id, qty_sold=qty_sold, total_price=total_price)
+                        db.session.add(new_sale)
+                        
+                        db.session.commit()
+                        
+                     
+                        if product.quantity <= product.threshold:
+                            trigger_low_stock_email([product])
+                            
+                        flash("Sale recorded successfully!", "success")
+                        return redirect("/sales")
+                else:
+                    error_msg = "Product not found!"
+        
+        except ValueError:
+            error_msg = "Invalid input! Please enter numbers for quantity."
+        except Exception as e:
+            db.session.rollback()
+            error_msg = f"Database error: {str(e)}"
 
     all_sales = Sales.query.order_by(Sales.sale_date.desc()).all()
     all_products = Product.query.all()
