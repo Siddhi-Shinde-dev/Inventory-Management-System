@@ -32,7 +32,7 @@ app.secret_key = os.environ.get("SECRET_KEY", "default-fallback-key")
 raw_password = os.environ.get("SUPABASE_PASSWORD")
 safe_password = urllib.parse.quote_plus(raw_password) if raw_password else ""
 
-app.config["SQLALCHEMY_DATABASE_URI"] = f"postgresql://postgres:{safe_password}@db.sdxrdppfylpiiimvcvgn.supabase.co:5432/postgres"
+app.config["SQLALCHEMY_DATABASE_URI"] = f"postgresql://postgres.sdxrdppfylpiiimvcvgn:{safe_password}@aws-1-ap-northeast-1.pooler.supabase.com:6543/postgres"
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 db = SQLAlchemy(app)
 
