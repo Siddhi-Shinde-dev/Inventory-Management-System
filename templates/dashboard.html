@@ -144,6 +144,7 @@
         box-shadow: 0 1px 3px rgba(0,0,0,0.05);
         border: 1px solid #e2e8f0;
         background: #ffffff;
+        min-height: 120px;
     }
 
     .stat-icon {
@@ -242,7 +243,20 @@
 </div>
 
 <div class="main-content">
-    
+
+    <!-- Flash Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert" style="border-radius: 8px;">
+            {{ message }}
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h3 class="font-weight-bold mb-0" style="color: #0f172a;">Inventory Dashboard</h3>
         <div>
@@ -340,7 +354,7 @@
     <div class="row mb-4">
         <div class="col-md-6 mb-3">
             <div class="dashboard-card">
-                <h6 class="font-weight-bold mb-3" style="color: #334155;"><i class="fa-solid fa-chart-pie text-primary mr-2"></i> Stock Levels (Top 5 Items)</h6>
+                <h6 class="font-weight-bold mb-3" style="color: #334155;"><i class="fa-solid fa-chart-pie text-primary mr-2"></i> Top 5 Selling Products</h6>
                 <canvas id="stockChart" height="150"></canvas>
             </div>
         </div>
@@ -412,7 +426,7 @@
         data: {
             labels: {{ chart_labels | tojson }},
             datasets: [{
-                label: 'Available Quantity',
+                label: 'Total Units Sold',
                 data: {{ chart_data | tojson }},
                 backgroundColor: '#2563eb'
             }]

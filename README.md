@@ -1,28 +1,190 @@
-Inventory Management System for Small Businesses
-A robust, web-based retail and warehouse management tech solution designed to replace manual stock tracking (notebooks/Excel) with an automated, secure, and data-driven platform. This application effectively prevents stockouts, overstocking, and revenue leakage by providing complete inventory visibility and role-based controls.
-
-Project Objective
-The core objective is to build a production-ready Business CRUD application that optimizes daily inventory operations for small retail shops, pharmacies, or warehouses. It enables users to track products, manage supplier networks, record sales with automatic stock deduction, and visualize business health through a comprehensive dashboard.
-
-Key Features
-Role-Based Authentication (RBAC): Secure user management with JWT tokens differentiating Admin (full control, reports, user management) and Staff (view and update stock only).
-Product Management (CRUD): Full capability to create, read, update, and delete products, seamlessly mapped under specific categories.
-Automated Stock Deduction: Every sales transaction automatically triggers an instantaneous reduction in the respective product's stock quantity.
-Real-time Low-Stock Alert System: Dynamic visual badges and notifications appear on the main dashboard instantly when any product falls below its predefined threshold level.
-Interactive Data Visualization: A dynamic dashboard powered by Chart.js displaying current stock levels and seasonal sales trends at a glance.
-Business Reporting: Built-in capability to aggregate data and export complete inventory reports into PDF (via ReportLab) or CSV formats.
-Advanced Filters & Search: Fast product lookup utilizing search strings and category filters.
-
-Tech Stack & Architecture
-Backend: Python, Flask REST API (Object-Oriented Programming, Custom Decorators, Exception Handling)
-Database: PostgreSQL (Hosted on Supabase), SQLAlchemy ORM (Relational tables: users, products, suppliers, sales, categories)
-Frontend: HTML5, CSS3, Bootstrap, Chart.js
-Security: JWT (JSON Web Tokens) for session authentication
-Utilities: ReportLab for file I/O operations (PDF generation)
-Deployment Platform: Render
-Execution & Setup Steps
-Follow these precise steps to clone, configure, and execute the project on your local machine:
+# 📦 Inventory Management System for Small Businesses
+ 
+**Developer:** Siddhi Shinde | Modern College of Arts, Science and Commerce, Pune  
+**Tech Domain:** Business / Retail Tech  
+**Live Demo:** [Hosted on Render](https://your-render-link.onrender.com)  
+**GitHub:** [Inventory-Management-System](https://github.com/Siddhi-Shinde-dev/Inventory-Management-System)
+ 
+---
+ 
+## 🧩 Problem Statement
+ 
+Small retail shops and warehouses manually track stock in notebooks or Excel sheets, leading to:
+- Stockouts and overstock situations
+- Revenue loss due to poor inventory visibility
+- No automated alerts for critical stock levels
+---
+ 
+## 🎯 Project Objective
+ 
+Build a production-ready, web-based inventory management system where businesses can track products, stock levels, suppliers, and sales. Automated alerts notify managers when stock falls below a threshold.
+ 
+---
+ 
+## ✨ Key Features
+ 
+| Feature | Description |
+|---|---|
+| 🔐 Role-Based Auth | JWT-based login — Admin (full control) vs Staff (view/update stock only) |
+| 📦 Product CRUD | Add, edit, delete products with category, price, quantity, threshold |
+| 🏢 Supplier Management | Manage supplier directory with linked products |
+| 🛒 Sales Recording | Every sale auto-deducts stock quantity |
+| 🚨 Low-Stock Alerts | Dashboard badge + email alert when stock drops below threshold |
+| 📊 Dashboard Charts | Bar chart (top selling) + Line chart (monthly sales trend) |
+| 📄 Reports | Export inventory reports as PDF or CSV |
+| 🧾 Invoice Generation | PDF invoice generated per sale |
+| 🔍 Search & Filter | Filter products by name and category |
+| 📋 Pagination | Products table with 10 items per page |
+ 
+---
+ 
+## 🛠️ Tech Stack
+ 
+| Layer | Technology |
+|---|---|
+| Backend | Python, Flask, SQLAlchemy ORM |
+| Database | PostgreSQL (Supabase) |
+| Frontend | HTML5, CSS3, Bootstrap 4, Chart.js |
+| Auth | JWT (PyJWT), bcrypt |
+| Reports | ReportLab (PDF), csv (CSV) |
+| Email | Flask-Mail, Gmail SMTP |
+| Deployment | Render (Web Service) |
+| Version Control | GitHub |
+ 
+---
+ 
+## 🗄️ Database Schema
+ 
+```
+users          → id, name, email, password (bcrypt), role
+products       → id, name, category, quantity, price, threshold, supplier_id
+suppliers      → id, name, contact_info
+sales          → id, product_id, qty_sold, total_price, sale_date
+```
+ 
+**Relationships:**
+- `products.supplier_id` → `suppliers.id` (CASCADE DELETE)
+- `sales.product_id` → `products.id` (CASCADE DELETE)
+---
+ 
+## ⚙️ Local Setup & Installation
+ 
+### 1. Clone the Repository
+```bash
+git clone https://github.com/Siddhi-Shinde-dev/Inventory-Management-System.git
+cd Inventory-Management-System
+```
+ 
+### 2. Install Dependencies
+```bash
+pip install -r requirements.txt
+```
+ 
+### 3. Create `.env` File
+Create a `.env` file in the root directory:
+```
+SUPABASE_PASSWORD=your_supabase_db_password
+MAIL_USERNAME=your_gmail@gmail.com
+MAIL_PASSWORD=your_gmail_app_password
+SECRET_KEY=your_flask_secret_key
+JWT_SECRET=your_jwt_secret_key
+```
+ 
+> **Note:** For Gmail, use an App Password (not your main password).  
+> Generate at: Google Account → Security → 2-Step Verification → App Passwords
+ 
+### 4. Run the Application
+```bash
+python app.py
+```
+ 
+Open browser: `http://127.0.0.1:5000`
+ 
+---
+ 
+## 👤 Default Login
+ 
+| Role | Email | Password |
+|---|---|---|
+| Admin | Register via `/register` | Set during registration |
+| Staff | Created by Admin via Settings | Set by Admin |
+ 
+---
+ 
+## 📁 Project Structure
+ 
+```
+Inventory-Management-System/
+│
+├── app.py                  # Main Flask application
+├── requirements.txt        # Python dependencies
+├── .env                    # Environment variables (not tracked)
+├── .gitignore
+├── README.md
+│
+└── templates/
+    ├── index.html          # Landing page
+    ├── login.html          # Login page
+    ├── register.html       # Register page
+    ├── dashboard.html      # Main dashboard with charts
+    ├── products.html       # Product listing with search/filter/pagination
+    ├── edit_product.html   # Edit product form
+    ├── suppliers.html      # Supplier directory
+    ├── edit_supplier.html  # Edit supplier form
+    ├── sales.html          # Sales recording
+    ├── reports.html        # Reports with charts
+    └── settings.html       # Admin user management
+```
+ 
+---
+ 
+## 📸 Screenshots
+ 
+| Page | Screenshot |
+|---|---|
+| Dashboard | ![Dashboard](screenshots/dashboard_top.png) |
+| Dashboard Charts | ![Charts](screenshots/dashboard_graphs.png) |
+| Warehouse Stock | ![Products](screenshots/warehouse_stock.png) |
+| Add Product | ![Add Product](screenshots/add_product_modal.png) |
+| Supplier Directory | ![Suppliers](screenshots/supplier_directory.png) |
+| Sales Records | ![Sales](screenshots/Sales_record.png) |
+| Valuation Report | ![Reports](screenshots/valuation_report.png) |
+| Admin Settings | ![Settings](screenshots/admin_settings.png) |
+ 
+---
+ 
+## 🚀 Deployment (Render)
+ 
+1. Push code to GitHub
+2. Go to [render.com](https://render.com) → New Web Service
+3. Connect GitHub repository
+4. Set **Start Command:** `gunicorn app:app`
+5. Add Environment Variables (from `.env`) in Render dashboard
+6. Deploy!
+---
+ 
+## 📚 Concepts Demonstrated
+ 
+- OOP with Flask (Models, Decorators, Helper Functions)
+- REST API design
+- JWT Authentication & Role-Based Access Control
+- Exception Handling
+- File I/O — PDF & CSV generation
+- Email Automation via SMTP
+- Data Aggregation with SQLAlchemy
+- Chart.js data visualization
+---
+ 
+## 🔮 Future Enhancements
+ 
+- Barcode scanner input
+- Demand forecasting (ML)
+- Multi-location warehouse support
+- Mobile-responsive PWA
+- Razorpay billing integration
+---
 
 1. Clone the Repository
 git clone [https://github.com/Siddhi-Shinde-dev/Inventory-Management-System.git](https://github.com/Siddhi-Shinde-dev/Inventory-Management-System.git)
 cd Inventory-Management-System
+---
