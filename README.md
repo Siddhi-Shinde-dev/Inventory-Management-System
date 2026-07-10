@@ -2,7 +2,7 @@
  
 **Developer:** Siddhi Shinde | Modern College of Arts, Science and Commerce, Pune  
 **Tech Domain:** Business / Retail Tech  
-**Live Demo:** [Hosted on Render](https://your-render-link.onrender.com)  
+**Live Demo:** [Hosted on Render](https://inventory-management-system-8dcl.onrender.com/)  
 **GitHub:** [Inventory-Management-System](https://github.com/Siddhi-Shinde-dev/Inventory-Management-System)
  
 ---
@@ -182,9 +182,4 @@ Inventory-Management-System/
 - Multi-location warehouse support
 - Mobile-responsive PWA
 - Razorpay billing integration
----
-
-1. Clone the Repository
-git clone [https://github.com/Siddhi-Shinde-dev/Inventory-Management-System.git](https://github.com/Siddhi-Shinde-dev/Inventory-Management-System.git)
-cd Inventory-Management-System
 ---
